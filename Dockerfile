@@ -10,7 +10,7 @@ FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-openssl:1.0.0-linux-mus
 FROM --platform=linux/arm64 ghcr.io/gh-org-template/kong-openssl:1.0.0-linux-gnu AS aarch64-linux-gnu
 
 # Run the build script
-FROM $ARCHITECTURE-$OSTYPE as build
+FROM $ARCHITECTURE-$OSTYPE AS build
 
 COPY . /tmp
 WORKDIR /tmp

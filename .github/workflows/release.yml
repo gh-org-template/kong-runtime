@@ -19,10 +19,16 @@
         published: ${{ steps.release.outputs.published }}
         release-git-tag: ${{ steps.release.outputs.release-git-tag }}
       steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - uses: actions/checkout@v4
         with:
           submodules: true
+          token: ${{ steps.app-token.outputs.token }}
       - name: Release
         id: release
         uses: ahmadnassri/action-semantic-release@v2.2.8
@@ -38,9 +44,16 @@
           ostype: [linux-gnu, linux-musl]
       runs-on: ubuntu-latest
       steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
       - uses: actions/checkout@v4
         with:
           submodules: true
+          token: ${{ steps.app-token.outputs.token }}
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - name: Set environment variables
