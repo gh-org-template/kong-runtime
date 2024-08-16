@@ -32,7 +32,7 @@ function test() {
 
     ls -la /tmp/buffer/usr/local/openresty/lualib/libatc_router.so
     ls -la /tmp/buffer/usr/local/openresty/lualib/resty/router/router.lua
-    #ldd /usr/local/openresty/lualib/libatc_router.so
+    ldd /usr/local/openresty/lualib/libatc_router.so
 
     mv /tmp/buffer /tmp/build
     echo '--- tested kong runtime ---'
