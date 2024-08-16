@@ -3,8 +3,9 @@ ARG ARCHITECTURE
 ARG DOCKER_REGISTRY=ghcr.io
 ARG DOCKER_IMAGE_NAME
 ARG DOCKER_ARCHITECTURE
+ARG VERSION=1.0.0
 
-FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-openssl:1.0.0-${OSTYPE} AS build
+FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-openssl:${VERSION}-${OSTYPE} AS build
 
 COPY . /tmp
 WORKDIR /tmp
