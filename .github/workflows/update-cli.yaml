@@ -1,10 +1,12 @@
-name: Update Dockerfile Base Image
+name: Run updatecli
 
 on:
   push:
     branches:
     - main
-  workflow_dispatch:  # Allows manual triggering of the workflow
+  workflow_dispatch:
+  repository_dispatch:
+    types: [update-required]
   schedule:
     - cron: '0 0 * * *'
 
@@ -33,13 +35,15 @@ jobs:
           curl -LO https://github.com/updatecli/updatecli/releases/latest/download/updatecli_Linux_x86_64.tar.gz
           tar -xzvf updatecli_Linux_x86_64.tar.gz -C /usr/local/bin
 
-      - name: Run Updatecli to update Dockerfile
+      - name: Run Updatecli
         env:
           UPDATECLI_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           UPDATECLI_GITHUB_ACTOR: ${{ github.actor }}
         run: |
-          updatecli diff --config manifest.yaml
-          updatecli apply --config manifest.yaml
+          updatecli diff --config manifest.atc-router.yaml
+          updatecli apply --config manifest.atc-router.yaml
+          updatecli diff --config manifest.openssl.yaml
+          updatecli apply --config manifest.openssl.yaml
           rm -rf updatecli*.tar.gz
 
       - name: Create Pull Request

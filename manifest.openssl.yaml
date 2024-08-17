@@ -1,5 +1,5 @@
 scms:
-  repo:
+  openssl-latest:
     kind: "github"
     spec:
       user: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
@@ -11,7 +11,7 @@ scms:
       branch: "main"
 
 sources:
-  kongOpenSSLLatestVersion:
+  openssl-latest:
     name: Get latest release
     kind: githubrelease
     spec:
@@ -20,27 +20,18 @@ sources:
       token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
 
-  kongAtcRouterLatestVersion:
-    name: Get latest release
-    kind: githubrelease
-    spec:
-      owner: gh-org-template
-      repository: atc-router
-      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
-      username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
-
 conditions:
-  ghcr:
+  openssl-latest:
     name: Make sure the image has been published
-    sourceid: kongOpenSSLLatestVersion
     kind: dockerimage
+    sourceid: openssl-latest
     spec:
       image: "ghcr.io/gh-org-template/kong-openssl"
 
 targets:
-  updateBaseDockerVersion:
+  openssl-latest:
     name: "Update base image"
-    sourceid: kongOpenSSLLatestVersion
+    sourceid: openssl-latest
     kind: dockerfile
     spec:
       files:
@@ -48,12 +39,5 @@ targets:
       instruction:
         keyword: "ARG"
         matcher: "VERSION"
-
-  updateAtcRouterVersion:
-    name: "Update atc-router version"
-    sourceid: kongAtcRouterLatestVersion
-    kind: file
-    spec:
-      file: ".env"
-      matchpattern: 'ATC_ROUTER_VERSION=.*'
-      replacepattern: 'ATC_ROUTER_VERSION={{ source "kongAtcRouterLatestVersion" }}'
+    conditions:
+      - openssl-latest
