@@ -1,0 +1,31 @@
+scms:
+  atc-router-latest:
+    kind: "github"
+    spec:
+      user: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+      email: "chutchic@gmail.com"
+      owner: "gh-org-template"
+      repository: "kong-runtime"
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+      branch: "main"
+
+sources:
+  atc-router-latest:
+    name: Get latest release
+    kind: githubrelease
+    spec:
+      owner: gh-org-template
+      repository: atc-router
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+
+targets:
+  atc-router-latest:
+    name: "Update atc-router version"
+    sourceid: atc-router-latest
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'ATC_ROUTER_VERSION=.*'
+      replacepattern: 'ATC_ROUTER_VERSION={{ source "atc-router-latest" }}'
