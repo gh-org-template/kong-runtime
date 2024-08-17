@@ -17,6 +17,11 @@ clean:
 	rm -rf package
 	docker rmi $(DOCKER_NAME)
 
+clean/submodules:
+	-git submodule foreach --recursive git reset --hard
+	-git submodule update --init --recursive
+	-git submodule status
+
 docker:
 	docker buildx build \
 		--build-arg DOCKER_REGISTRY=$(DOCKER_REGISTRY) \
