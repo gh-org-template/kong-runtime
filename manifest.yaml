@@ -20,6 +20,15 @@ sources:
       token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
       username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
 
+  kongAtcRouterLatestVersion:
+    name: Get latest release
+    kind: githubrelease
+    spec:
+      owner: gh-org-template
+      repository: atc-router
+      token: '{{ requiredEnv "UPDATECLI_GITHUB_TOKEN" }}'
+      username: '{{ requiredEnv "UPDATECLI_GITHUB_ACTOR" }}'
+
 conditions:
   ghcr:
     name: Make sure the image has been published
@@ -39,3 +48,12 @@ targets:
       instruction:
         keyword: "ARG"
         matcher: "VERSION"
+
+  updateAtcRouterVersion:
+    name: "Update atc-router version"
+    sourceid: kongAtcRouterLatestVersion
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'ATC_ROUTER_VERSION=.*'
+      replacepattern: 'ATC_ROUTER_VERSION={{ source "kongAtcRouterLatestVersion" }}'
