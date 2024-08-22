@@ -1,0 +1,18 @@
+sources:
+  lua-resty-events:
+    name: Get current lua-resty-events release
+    kind: file
+    spec:
+      file: ./kong/.requirements
+      matchpattern: RESTY_EVENTS_VERSION=.*
+    transformers:
+      - trimprefix: "RESTY_EVENTS_VERSION="
+
+targets:
+  lua-resty-events:
+    name: "Update lua-resty-events version"
+    sourceid: lua-resty-events
+    kind: shell
+    spec:
+      command: |
+        cd lua-resty-events && git checkout {{ source "lua-resty-events" }} && exit 0

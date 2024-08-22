@@ -1,0 +1,18 @@
+sources:
+  lua-kong-nginx-module:
+    name: Get current lua-kong-nginx-module release
+    kind: file
+    spec:
+      file: ./kong/.requirements
+      matchpattern: KONG_NGINX_MODULE_BRANCH=.*
+    transformers:
+      - trimprefix: "KONG_NGINX_MODULE_BRANCH="
+
+targets:
+  lua-kong-nginx-module:
+    name: "Update lua-kong-nginx-module version"
+    sourceid: lua-kong-nginx-module
+    kind: shell
+    spec:
+      command: |
+        cd lua-kong-nginx-module && git checkout {{ source "lua-kong-nginx-module" }} && exit 0
