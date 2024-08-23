@@ -15,4 +15,4 @@ targets:
     kind: shell
     spec:
       command: |
-        cd lua-resty-lmdb && git checkout {{ source "lua-resty-lmdb" }} && exit 0
+        cd lua-resty-lmdb && git fetch --all && git checkout {{ source "lua-resty-lmdb" }} && exit 0
