@@ -1,0 +1,19 @@
+sources:
+  pcre-version:
+    name: Get current pcre-version release
+    kind: file
+    spec:
+      file: ./kong/.requirements
+      matchpattern: RESTY_PCRE_VERSION=.*
+    transformers:
+      - trimprefix: "RESTY_PCRE_VERSION="
+
+targets:
+  pcre-version:
+    name: "Update pcre-version version"
+    sourceid: pcre-version
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'PCRE_VERSION=.*'
+      replacepattern: 'PCRE_VERSION={{ source "pcre-version" }}'

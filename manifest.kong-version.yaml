@@ -1,0 +1,33 @@
+sources:
+  kong-version:
+    name: Get current kong-version from rockspec file
+    kind: shell
+    spec:
+      command: |
+        basename $(ls ./kong/kong-*-0.rockspec) | sed -n 's/kong-\(.*\)-0.rockspec/\1/p'
+
+  kong-sha:
+    name: Get latest git SHA of kong directory
+    kind: shell
+    spec:
+      command: |
+        git -C ./kong rev-parse HEAD
+
+targets:
+  kong-version:
+    name: "Update kong-version in .env"
+    sourceid: kong-version
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'KONG_VERSION=.*'
+      replacepattern: 'KONG_VERSION={{ source "kong-version" }}'
+
+  kong-sha:
+    name: "Update kong-sha in .env"
+    sourceid: kong-sha
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'KONG_SHA=.*'
+      replacepattern: 'KONG_SHA={{ source "kong-sha" }}'
