@@ -15,4 +15,4 @@ targets:
     kind: shell
     spec:
       command: |
-        cd lua-resty-events && git checkout {{ source "lua-resty-events" }} && exit 0
+        cd lua-resty-events && git fetch --all && git checkout {{ source "lua-resty-events" }} && exit 0

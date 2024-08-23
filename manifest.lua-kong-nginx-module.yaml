@@ -15,4 +15,4 @@ targets:
     kind: shell
     spec:
       command: |
-        cd lua-kong-nginx-module && git checkout {{ source "lua-kong-nginx-module" }} && exit 0
+        cd lua-kong-nginx-module && git fetch --all && git checkout {{ source "lua-kong-nginx-module" }} && exit 0
