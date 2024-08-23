@@ -1,0 +1,19 @@
+sources:
+  openresty-version:
+    name: Get current openresty-version release
+    kind: file
+    spec:
+      file: ./kong/.requirements
+      matchpattern: RESTY_VERSION=.*
+    transformers:
+      - trimprefix: "RESTY_VERSION="
+
+targets:
+  openresty-version:
+    name: "Update openresty-version version"
+    sourceid: openresty-version
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'OPENRESTY_VERSION=.*'
+      replacepattern: 'OPENRESTY_VERSION={{ source "openresty-version" }}'

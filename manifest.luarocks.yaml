@@ -1,0 +1,19 @@
+sources:
+  luarocks-version:
+    name: Get current luarocks-version release
+    kind: file
+    spec:
+      file: ./kong/.requirements
+      matchpattern: RESTY_LUAROCKS_VERSION=.*
+    transformers:
+      - trimprefix: "RESTY_LUAROCKS_VERSION="
+
+targets:
+  luarocks-version:
+    name: "Update luarocks-version version"
+    sourceid: luarocks-version
+    kind: file
+    spec:
+      file: ".env"
+      matchpattern: 'LUAROCKS_VERSION=.*'
+      replacepattern: 'LUAROCKS_VERSION={{ source "luarocks-version" }}'
