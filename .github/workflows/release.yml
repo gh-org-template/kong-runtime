@@ -18,6 +18,7 @@
       outputs:
         published: ${{ steps.release.outputs.published }}
         release-git-tag: ${{ steps.release.outputs.release-git-tag }}
+        dry_run: ${{ steps.check.outputs.dry_run }}
       steps:
       - uses: actions/create-github-app-token@v1
         id: app-token
@@ -76,16 +77,17 @@
           echo "OSTYPE=${{ matrix.ostype }}" >> $GITHUB_ENV
           echo "REGISTRY=ghcr.io"
       - name: Build and Package
+        if: ${{ needs.release.outputs.dry_run == 'false' }}
         run: make build/package
       - name: Log in to the Container registry
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Docker meta
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -100,18 +102,18 @@
             type=semver,pattern={{major}},value=${{ needs.release.outputs.release-git-tag }}
             type=raw,value=${{ env.OPENSSL_VERSION }}
       - name: Retag and Push
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         run: |
           for tag in ${{ steps.meta.outputs.tags }}; do \
             docker tag ghcr.io/kong-runtime:build-$ARCHITECTURE-$OSTYPE $tag && \
             docker push $tag; \
           done
       - name: Archive the package
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         run: |
           tar -C package -czvf ${{ matrix.architecture }}-${{ matrix.ostype }}.tar.gz .
       - name: Add Release Artifact to the Github Release
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release.outputs.release-git-tag }}
@@ -120,14 +122,13 @@
     multi-arch:
       needs: [release, artifacts]
       name: Create Release Artifacts
-      if: ${{ needs.release.outputs.published == 'true' }}
+      if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
       strategy:
         matrix:
           ostype: [linux-gnu, linux-musl]
       runs-on: ubuntu-latest
       steps:
       - name: Log in to the Container registry
-        if: ${{ needs.release.outputs.published == 'true' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -149,14 +150,14 @@
       runs-on: ubuntu-latest
       steps:
       - name: Log in to the Container registry
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Create a final multi-arch manifest with only linux-gnu
-        if: ${{ needs.release.outputs.published == 'true' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         run: |
           docker pull ghcr.io/gh-org-template/kong-runtime:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
           docker pull ghcr.io/gh-org-template/kong-runtime:${{ needs.release.outputs.release-git-tag }}-x86_64-linux-gnu
@@ -165,14 +166,14 @@
             ghcr.io/gh-org-template/kong-runtime:${{ needs.release.outputs.release-git-tag }}-aarch64-linux-gnu
           docker manifest push ghcr.io/gh-org-template/kong-runtime:${{ needs.release.outputs.release-git-tag }}
       - uses: actions/create-github-app-token@v1
-        if: ${{ needs.release.result == 'success' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         id: app-token
         with:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
       - name: Trigger Update Dockerfile Job on kong-runtime Repository
-        if: ${{ needs.release.result == 'success' }}
+        if: ${{ needs.release.outputs.published == 'true' && needs.release.outputs.dry_run == 'false' }}
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ steps.app-token.outputs.token }}
