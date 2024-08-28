@@ -1,0 +1,55 @@
+name: Run Updatecli on Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  updatecli-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Set up Node.js (for Updatecli)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Install Updatecli
+        run: |
+          curl -LO https://github.com/updatecli/updatecli/releases/latest/download/updatecli_Linux_x86_64.tar.gz
+          tar -xzvf updatecli_Linux_x86_64.tar.gz -C /usr/local/bin
+
+      - name: Run Updatecli to update Dockerfile
+        env:
+          UPDATECLI_GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          UPDATECLI_GITHUB_ACTOR: ${{ github.actor }}
+        run: |
+          for file in manifest*.yaml; do
+            updatecli diff --config "$file"
+            updatecli apply --config "$file"
+          done
+          rm -rf updatecli*.tar.gz
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "chore: update dependencies with Updatecli"
+          git fetch
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
