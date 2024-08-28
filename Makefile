@@ -13,9 +13,15 @@ else
 	DOCKER_ARCHITECTURE=amd64
 endif
 
+run-updatecli:
+	@for file in $(shell ls manifest.*.yaml); do \
+		echo "Running updatecli for $$file"; \
+		updatecli apply --config=$$file; \
+	done
+
 clean:
-	rm -rf package
-	docker rmi $(DOCKER_NAME)
+	-rm -rf package
+	-docker rmi $(DOCKER_NAME)
 
 clean/submodules:
 	-git submodule foreach --recursive git reset --hard
