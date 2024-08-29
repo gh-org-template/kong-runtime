@@ -75,8 +75,8 @@ function main() {
 
         eval ./configure ${OPENRESTY_OPTS[*]} || tee /tmp/00-openresty-configure.log
 
-        make -j2 || tee /tmp/01-openresty-build.log
-        make -j2 install DESTDIR=/tmp/build || tee /tmp/02-openresty-install.log
+        make -j2
+        make -j2 install DESTDIR=/tmp/build
     popd
 
     pushd /tmp/lua-kong-nginx-module
