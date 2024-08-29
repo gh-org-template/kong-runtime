@@ -1,11 +1,8 @@
-ARG OSTYPE
-ARG ARCHITECTURE
-ARG DOCKER_REGISTRY=ghcr.io
-ARG DOCKER_IMAGE_NAME
-ARG DOCKER_ARCHITECTURE
+ARG OSTYPE=linux-gnu
+ARG ARCHITECTURE=amd64
 ARG VERSION=1.1.1s
 
-FROM --platform=linux/${DOCKER_ARCHITECTURE} ghcr.io/gh-org-template/kong-openssl:${VERSION}-${OSTYPE} AS build
+FROM --platform=linux/${ARCHITECTURE} ghcr.io/gh-org-template/kong-openssl:${VERSION}-${OSTYPE} AS build
 
 COPY . /tmp
 WORKDIR /tmp
@@ -14,7 +11,7 @@ WORKDIR /tmp
 # Configure, build, and install
 # Run our own tests
 # Re-run our predecessor tests
-ENV DEBUG=0
+ENV DEBUG=1
 RUN /test/*/test.sh && \
     /tmp/build.sh && \
     /tmp/test.sh && \

@@ -33,11 +33,11 @@
       - name: Determine Dry Run
         id: check
         run: |
-          if git diff --name-only HEAD~1 HEAD | grep -E '^(\.env|patches|Dockerfile/)'; then
-            echo "Changes detected in .env or ./patches/ or Dockerfile, proceeding with full release."
+          if git diff --name-only HEAD~1 HEAD | grep -E '^(patches/|Dockerfile|lua-kong-nginx-module|lua-resty-events|lua-resty-lmdb)'; then
+            echo "Changes detected in submodules or ./patches/ or Dockerfile, proceeding with full release."
             echo "dry_run=false" >> $GITHUB_ENV
           else
-            echo "No changes detected in .env or ./patches/ or Dockerfile, switching to dry run."
+            echo "No changes detected in submodules or ./patches/ or Dockerfile, switching to dry run."
             echo "dry_run=true" >> $GITHUB_ENV
           fi
       - name: Release
@@ -76,7 +76,16 @@
           echo "OSTYPE=${{ matrix.ostype }}" >> $GITHUB_ENV
           echo "REGISTRY=ghcr.io"
       - name: Build and Package
-        run: make build/package
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            for i in {1..2}; do
+              make build/package && break
+              echo "Retrying... ($i/2)"
+              sleep 20
+            done
+          else
+            make build/package
+          fi
       - name: Log in to the Container registry
         if: ${{ needs.release.outputs.published == 'true' }}
         uses: docker/login-action@v3

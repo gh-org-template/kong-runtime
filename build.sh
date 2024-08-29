@@ -31,17 +31,18 @@ function main() {
         # Check if /tmp/patches/ is empty
         if [ -z "$(ls /tmp/patches/*.patch 2>/dev/null)" ]; then
             echo 'No patches found in /tmp/patches/, using /tmp/old-patches/'
-            patch_dir="/tmp/old-patches"
+            patch_dir="/tmp/old-patches/${OPENRESTY_VERSION}"
+            popd
+            pushd openresty-${OPENRESTY_VERSION}/bundle
         else
             patch_dir="/tmp/patches"
         fi
-
         # Apply patches from the appropriate directory
         for patch_file in ${patch_dir}/*.patch; do
             patch -p1 < "$patch_file"
         done
 
-        lj_dir=$(ls -d bundle/LuaJIT*)
+        lj_dir=$(ls -d bundle/LuaJIT* || ls -d LuaJIT*)
         lj_release_date=$(echo ${lj_dir} | sed -e 's/LuaJIT-[[:digit:]]\+.[[:digit:]]\+-\([[:digit:]]\+\)/\1/')
         lj_version_tag="LuaJIT\ 2.1.0-${lj_release_date}"
 

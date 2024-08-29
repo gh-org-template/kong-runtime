@@ -10,3 +10,6 @@
 [submodule "lua-resty-lmdb"]
 	path = lua-resty-lmdb
 	url = https://github.com/Kong/lua-resty-lmdb.git
+[submodule "kong-build-tools"]
+	path = kong-build-tools
+	url = https://github.com/Kong/kong-build-tools.git
