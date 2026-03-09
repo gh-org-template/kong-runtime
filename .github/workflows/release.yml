@@ -68,7 +68,7 @@
           submodules: recursive
           token: ${{ steps.app-token.outputs.token }}
       - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Set environment variables
         run: |
           grep -v '^#' .env >> $GITHUB_ENV
